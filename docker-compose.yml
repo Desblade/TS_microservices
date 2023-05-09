@@ -1,0 +1,91 @@
+version: '3'
+
+services:
+  users:
+    build:
+      context: ./users/
+      dockerfile: ../Dockerfile
+    depends_on:
+      - users-db
+    environment:
+      PORT: 8000
+      DB_HOST: users-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: users
+      SECRET_KEY: secret
+
+  users-db:
+    image: postgres
+    volumes:
+      - db1:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: users
+
+  admins:
+    build:
+      context: ./admins/
+      dockerfile: ../Dockerfile
+    depends_on:
+      - admins-db
+    environment:
+      PORT: 8000
+      DB_HOST: admins-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: admins
+      SECRET_KEY: secret
+
+  admins-db:
+    image: postgres
+    volumes:
+      - db2:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: admins
+
+  articles:
+    build:
+      context: ./articles/
+      dockerfile: ../Dockerfile
+    depends_on:
+      - articles-db
+    environment:
+      PORT: 8000
+      DB_HOST: articles-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: articles
+      SECRET_KEY: secret
+
+  articles-db:
+    image: postgres
+    volumes:
+      - db3:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: articles
+  proxy:
+    image: nginx
+    depends_on:
+      - users
+      - admins
+      - articles
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/service.conf
+
+volumes:
+  db1:
+
+  db2:
+
+  db3:
